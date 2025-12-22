@@ -26,7 +26,13 @@ var _search_enabled: bool = true:
 	"Group enabled:%d"        % PROPERTY_USAGE_GROUP,
 	"Subgroup enabled:%d"     % PROPERTY_USAGE_SUBGROUP,
 	"Script variable only:%d" % PROPERTY_USAGE_SCRIPT_VARIABLE,
-) var usage_flags: int = PROPERTY_USAGE_EDITOR | PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE_GROUP | PROPERTY_USAGE_SUBGROUP | PROPERTY_USAGE_SCRIPT_VARIABLE:
+	"Also show internal:%d"   % PROPERTY_USAGE_INTERNAL,
+) var usage_flags: int = (  PROPERTY_USAGE_EDITOR 
+						  | PROPERTY_USAGE_CATEGORY 
+						  | PROPERTY_USAGE_GROUP 
+						  | PROPERTY_USAGE_SUBGROUP 
+						  | PROPERTY_USAGE_SCRIPT_VARIABLE
+						  | PROPERTY_USAGE_INTERNAL): 
 	set = set_usage_flags
 
 
@@ -263,6 +269,10 @@ func is_valid_usage_flag(usage: int) -> bool:
 
 	# Ensure usage matches EDITOR flag
 	if usage_flags & PROPERTY_USAGE_EDITOR and not (usage & PROPERTY_USAGE_EDITOR):
+		return false
+	
+	# ignore internal marked properties if not enabled to include them
+	if (usage & PROPERTY_USAGE_INTERNAL) and not (usage_flags & PROPERTY_USAGE_INTERNAL):
 		return false
 
 	# Ensure usage matches SCRIPT_VARIABLE flag
