@@ -20,6 +20,12 @@ var _search_enabled: bool = true:
 	set = set_search_enabled,
 	get = is_search_enabled
 
+@export 
+var _groups_opened := false
+@export 
+var _subgroups_opened := false
+
+
 @export_flags(
 	"Export only:%d"          % PROPERTY_USAGE_EDITOR,
 	"Category enabled:%d"     % PROPERTY_USAGE_CATEGORY,
@@ -220,7 +226,7 @@ func update_inspector() -> void:
 			assert(is_instance_valid(parent), "Subgroup property does not have `property_container` meta!")
 
 			subgroup = control
-			subgroup.call(&"set_toggled", _subgroup_states.get(property.name, false))
+			subgroup.call(&"set_toggled", _subgroup_states.get(property.name, _subgroups_opened))
 			subgroup.set_meta(&"group", group)
 
 			var error: Error = subgroup.connect(&"toggled", _on_subgroup_toggled.bind(property.name))
@@ -238,7 +244,7 @@ func update_inspector() -> void:
 			assert(is_instance_valid(parent), "Group property does not have `property_container` meta!")
 
 			group = control
-			group.call(&"set_toggled", _group_states.get(property.name, false))
+			group.call(&"set_toggled", _group_states.get(property.name, _groups_opened))
 			group.set_meta(&"category", category)
 
 			var error: Error = group.connect(&"toggled", _on_group_toggled.bind(property.name))
