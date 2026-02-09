@@ -261,11 +261,14 @@ func update_inspector() -> void:
 
 		property.control = control
 
+func is_cat_or_group_to_keep(usage: int) -> bool:
+	var gr_usage = usage & (PROPERTY_USAGE_GROUP | PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE_SUBGROUP)
+	return (gr_usage & usage_flags) == gr_usage
 
 func is_valid_usage_flag(usage: int) -> bool:
 	# Check if usage includes GROUP, CATEGORY, or SUBGROUP
 	if usage & (PROPERTY_USAGE_GROUP | PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE_SUBGROUP):
-		return (usage & usage_flags) == usage
+		return true # do not filter on usage flags here or empty section detection breaks
 
 	# Ensure usage matches EDITOR flag
 	if usage_flags & PROPERTY_USAGE_EDITOR and not (usage & PROPERTY_USAGE_EDITOR):
@@ -321,10 +324,13 @@ func _update_property_list() -> void:
 			continue
 		elif prop.usage & PROPERTY_USAGE_SUBGROUP:
 			prop.to_keep = not _is_section_empty(properties, i, PROPERTY_USAGE_GROUP | PROPERTY_USAGE_CATEGORY | PROPERTY_USAGE_SUBGROUP)
+			prop.to_keep = prop.to_keep and is_cat_or_group_to_keep(prop.usage)
 		elif prop.usage & PROPERTY_USAGE_GROUP:
 			prop.to_keep = not _is_section_empty(properties, i, PROPERTY_USAGE_GROUP | PROPERTY_USAGE_CATEGORY)
+			prop.to_keep = prop.to_keep and is_cat_or_group_to_keep(prop.usage)
 		elif prop.usage & PROPERTY_USAGE_CATEGORY:
 			prop.to_keep = not _is_section_empty(properties, i, PROPERTY_USAGE_CATEGORY)
+			prop.to_keep = prop.to_keep and is_cat_or_group_to_keep(prop.usage)
 
 	_valid_properties = properties.filter(func(prop: Dictionary) -> bool:
 		return prop.erase(&"to_keep") if prop.to_keep else false
